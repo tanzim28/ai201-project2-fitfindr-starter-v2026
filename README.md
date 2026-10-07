@@ -59,24 +59,24 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Searches the local clothing catalogue (`data/listings.json`) by description keywords with optional size and inclusive maximum-price filters.
+- **Inputs:** `description` (str), `size` (str | None = None), `max_price` (float | None = None)
+- **Returns:** A list of matching listing dictionaries (each containing `id`, `title`, `price`, `size`, `platform`, `description`, `link`), ranked by keyword relevance and price.
+- **When it has nothing:** Returns an empty list `[]` (not `None` and not an exception).
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Recommends two complementary outfit combinations built around a selected clothing listing, incorporating items from the user's wardrobe when available.
+- **Inputs:** `new_item` (dict), `wardrobe` (dict)
+- **Returns:** A non-empty string containing two outfit suggestions naming pieces from the wardrobe as written.
+- **When it has nothing:** When the wardrobe is empty (`{"items": []}`), returns general styling advice and explicitly states that suggestions are generic because no wardrobe is saved.
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Drafts a concise, social-media-style caption about the selected thrift item and how to style it.
+- **Inputs:** `outfit` (str), `new_item` (dict)
+- **Returns:** A string of 2 to 4 sentences highlighting the piece, styling tips, price written with digits (e.g. `$25`), and the selling platform.
+- **When it has nothing:** If `outfit` is empty or whitespace, returns a helpful fallback error message rather than calling the model or raising an exception.
 
 ---
 
@@ -93,13 +93,10 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
-
-**Where it lives:** `agent.py::run_agent`
-
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
-
-**What moves through the session:** <!-- which fields, in what order -->
+- **Branch rule:** If `search_listings` returns an empty list (`[]`), put an explanatory message in `session["error"]` specifying what the user could change and stop execution immediately. Otherwise, take the first result, store it in `session["selected_item"]`, and proceed to `suggest_outfit`.
+- **Where it lives:** `agent.py::run_agent`
+- **How the query is parsed:** `agent.py::parse_query` extracts description keywords, detects standard size tokens (e.g., XS, S, M, L, XL), and extracts numerical price ceilings (e.g., `under $30` -> `30.0`).
+- **What moves through the session:** The user query string, parsed parameters dictionary, search results list, selected listing dictionary, user wardrobe dictionary, outfit suggestions string, final fit card string, and any error message.
 
 ---
 
