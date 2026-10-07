@@ -42,27 +42,18 @@ Given a query that matches no listings, the agent stops before calling
 
 ---
 
-## 3. Something about state
+## 3. Session state preserves selected item integrity across tool boundaries
 
-<!-- YOU WRITE THIS ONE.
-
-     How would you know that the item your search found is the same item the
-     next tool received? Name something countable or observable.
-
-     This is the criterion people find hardest, because state failure doesn't
-     look like state failure — it looks like a tool problem. Something that
-     compares session["selected_item"] against what actually reached
-     suggest_outfit is the shape you're after. -->
-
-
+In at least 4 of 5 successful runs, the listing dictionary stored in `session["selected_item"]` has the exact same `id`, `title`, and `price` as the dictionary passed into `tools.py::suggest_outfit`.
 
 **Why this target:**
+The agent must carry retrieved data from `search_listings` into `suggest_outfit` via the shared `session` dictionary without mutating or dropping keys. Allowing 4 of 5 accounts for test edge cases where multiple listings tie on score, verifying that session memory maintains data integrity across tool calls.
 
 
 
 ---
 
-## 4. Something about the fit card
+## 4. Fit card includes price digits, platform name, and meets length constraints
 
 <!-- YOU WRITE THIS ONE.
 
@@ -76,14 +67,16 @@ Given a query that matches no listings, the agent stops before calling
      be turned into a number. -->
 
 
+Across 5 runs with a matched listing, the generated fit card contains the item's price written with digits (e.g., "$25"), mentions the selling platform name, and consists of between 2 and 4 sentences — in at least 4 of 5 tries.
 
 **Why this target:**
+Because `tools.py::create_fit_card` uses an LLM with non-zero temperature, generative phrasing naturally varies across runs. Rather than attempting to evaluate subjective style, this target tests verifiable structural constraints and entity extraction while tolerating minor model formatting drift.
 
 
 
 ---
 
-## 5. Your choice
+## 5. Search strictly enforces maximum price ceilings
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -92,10 +85,10 @@ Given a query that matches no listings, the agent stops before calling
      search respects a price ceiling — anything, as long as it names a number
      or an observable outcome. -->
 
-
+When a query contains a maximum price (such as "under $30"), every listing returned by `tools.py::search_listings` has a price less than or equal to that maximum threshold — in 5 of 5 tries.
 
 **Why this target:**
-
+Filtering by price in `tools.py::search_listings` is performed by direct numeric comparison against `listing["price"]` in `data/listings.json`. Because numerical filtering in Python does not depend on model generation, it must never leak over-budget items.
 
 
 ---
