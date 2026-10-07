@@ -110,7 +110,7 @@
 **One full query**
 
 ```
-$ python app.py ask '...'
+$ python app.py ask 'vintage graphic tee under $30'
 
 ```
 
@@ -118,16 +118,48 @@ $ python app.py ask '...'
 
 ```
 $ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
+[{'id': 'lst_017', 'title': 'Mesh Long-Sleeve Top — Black', 'description': 'Sheer black mesh long-sleeve. Great for layering under a graphic tee or over a bralette. Stretchy material, fits true to size.', 'category': 'tops', 'style_tags': ['y2k', 'grunge', 'goth', 'layering'], 'size': 'S/M', 'condition': 'excellent', 'price': 15.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}]
 
 ```
 
 ```
 $ python -c "from tools import suggest_outfit; ..."
+python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
+Hello! As your personal stylist, I am so excited to style those Vintage Levi's 501 Jeans for you. A medium-wash 501 is the ultimate wardrobe chameleon—timeless, versatile, and effortless. 
+
+Here are two distinct outfits built around your new thrift find, using pieces straight from your current wardrobe:
+
+***
+
+### Outfit 1: Effortless Off-Duty Streetwear
+*This look plays with proportions and textures, taking inspiration from casual 90s model-off-duty style. It balances an oversized silhouette on top with the classic, straight fit of your new denim.*
+
+* **Top:** Oversized grey crewneck sweatshirt
+* **Outerwear:** Vintage black denim jacket (worn layered over the sweatshirt)
+* **Shoes:** Chunky white sneakers
+* **Accessories:** Black crossbody bag
+
+**Why it works:** 
+Layering the oversized grey crewneck sweatshirt under the vintage black denim jacket creates instant cool-factor and depth with contrasting shades of grey and black. Toning down the heaviness of the double-layer top, the chunky white sneakers add a fresh, sporty pop to the bottom while complementing the medium wash of the Levi's. Throwing on the black crossbody bag keeps your hands free and ties the black outerwear and footwear together for a cohesive, street-ready finish.
+
+***
+
+### Outfit 2: Edgy Casual Chic
+*This outfit leans into a sharper, more defined aesthetic. By incorporating fitted elements and dark accents, it elevates the vintage jeans for a coffee run, a casual lunch, or a night out.*
+
+* **Top:** White ribbed tank top
+* **Shoes:** Black combat boots
+* **Accessories:** Brown leather belt, Black crossbody bag
+
+**Why it works:**
+Tucking the fitted white ribbed tank top into the vintage Levi's 501 Jeans creates a classic, high-waisted silhouette that highlights the waist. Adding the brown leather belt introduces a rich, warm contrast against the medium-wash denim and anchors the top-to-bottom look. Grounding the outfit with the black combat boots adds an edgy, downtown-girl attitude that contrasts nicely with the clean simplicity of the white tank, finished off simply and practically with the black crossbody bag.
+
 
 ```
 
 ```
-$ python -c "from tools import create_fit_card; ..."
+$ python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
+Scored these vintage Levi's 501 jeans in the dreamiest medium wash on depop for just $38.0! I'm styling them with crisp white sneakers for that effortlessly cool, off-duty model aesthetic. Sustainable style has truly never looked this good.
 
 ```
 
