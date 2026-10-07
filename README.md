@@ -40,7 +40,7 @@
 ## What This Does
 
 <!-- Three or four sentences: what a user asks for, and what they get back. -->
-
+FitFindr is an agentic styling assistant that finds second-hand fashion pieces and creates tailored outfit ideas using the user's existing wardrobe. A user enters a natural-language search request specifying style keywords, size preferences, and price constraints. The agent parses the request, filters and ranks matching catalog listings, recommends two distinct outfits that incorporate wardrobe pieces, and composes an engaging social-media fit card highlighting the find, its price, and the platform.
 
 
 ---
@@ -111,6 +111,45 @@
 
 ```
 $ python app.py ask 'vintage graphic tee under $30'
+Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+Outfit:   As your personal stylist, I am so excited you scored that Y2K butterfly baby tee! Because it has that fitted, cropped silhouette, it’s the ultimate canvas to play with proportions.
+
+Here are two distinct, vibe-checked outfits using pieces straight from your wardrobe:
+
+Look 1: Off-Duty Model Y2K Streetwear
+The Vibe: Effortless, nostalgic, and leaning hard into early 2000s off-duty style by playing with oversized silhouettes.
+
+Top: Y2K Baby Tee — Butterfly Print
+
+Bottoms: Baggy straight-leg jeans, dark wash
+
+Outerwear: Black cropped zip hoodie (worn open or draped over the shoulders)
+
+Shoes: Chunky white sneakers
+
+Accessories: Black crossbody bag
+
+Styling Notes: Let the fitted baby tee be the star by pairing it with your baggy straight-leg jeans for that classic Y2K contrast. Throw the black cropped zip hoodie on top, leaving it unzipped so the butterfly graphic still pops. Finish the look with your chunky white sneakers to lean into the retro athletic aesthetic, and sling the black crossbody bag across your chest for easy street-style utility.
+
+Look 2: Elevated Smart-Casual Contrast
+The Vibe: High-low styling that mixes structured tailoring with playful, retro femininity.
+
+Top: Y2K Baby Tee — Butterfly Print
+
+Bottoms: Wide-leg khaki trousers
+
+Outerwear: Vintage black denim jacket
+
+Shoes: Black combat boots
+
+Accessories: Brown leather belt, Black crossbody bag
+
+Styling Notes: Tuck the baby tee into your wide-leg khaki trousers and cinch the waist with the brown leather belt to give the outfit some sharp definition. Layer the vintage black denim jacket on top for a cool, textural contrast against the smooth khaki fabric. Ground the softer, nostalgic tee with your edgy black combat boots, and tie it all together with your black crossbody bag for a polished finish that feels modern and intentional.
+
+Fit card: Look at this absolute Depop steal I scored for just $18.0! I am obsessed with this Y2K butterfly baby tee and love styling it either oversized with baggy jeans for off-duty street vibes, or tucked into khaki trousers with combat boots for an elevated smart-casual look. Which vibe are we wearing out today?
+
+2 model calls this session, 724 prompt + 494 output tokens
 
 ```
 
@@ -174,17 +213,15 @@ Scored these vintage Levi's 501 jeans in the dreamiest medium wash on depop for 
      "I gave Claude my search_listings spec. It returned None on no match
      instead of an empty list, so I changed it" is the level we want. -->
 
-**Moment 1**
+### Moment 1
+- **What I asked for:** I asked for a function implementation for `tools.py::search_listings` that filters listings by size, price ceiling, and description keywords.
+- **What came back:** The generated code used a naive substring check for sizes (`if size.lower() in item['size'].lower()`), which produced false matches (e.g., matching size "S" inside "US 9" or "L" inside "XL").
+- **What I changed:** I implemented a custom `_size_matches` helper using token splitting and regular expression boundaries (`re.split(r"[/,\s]+", item_size)`) to ensure exact whole-token matches across compound size labels like "S/M".
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
-
-**Moment 2**
-
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+### Moment 2
+- **What I asked for:** I asked how to parse natural-language search queries in `agent.py::parse_query`.
+- **What came back:** The suggested implementation attempted to call the language model API on every user query to extract structured JSON arguments.
+- **What I changed:** I replaced the model call with deterministic regex extraction for price limits and size tokens. This eliminated unnecessary API latency, prevented token usage on query preprocessing, and ensured predictable extraction before running `search_listings`.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
