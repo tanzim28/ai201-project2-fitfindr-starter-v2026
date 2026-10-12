@@ -227,6 +227,10 @@ Scored these vintage Levi's 501 jeans in the dreamiest medium wash on depop for 
 
      Don't fill these in during unit 3.
      ═══════════════════════════════════════════════════════════════════ -->
+### Moment 3 (Unit 4 — Test & Diagnosis)
+- **What I asked for:** An evaluation of why Criterion 5 missed all 5 tries on the query `"tops under $20"`, and why the subsequent search fix caused an `MCPError: unhandled errors in a TaskGroup` when run over MCP.
+- **What came back:** A diagnosis noting that `data/listings.json` stores broad apparel types in `item["category"]` (e.g., `"tops"`) rather than the item title or description, and an explanation that naive string concatenation crashed during MCP serialization because some items contained `None` in `category` or non-string items in `style_tags`.
+- **What I changed:** In `tools.py::search_listings`, I expanded the search corpus to concatenate `category` alongside `title`, `description`, and `style_tags`, wrapping each field with safe string casting (`str(item.get("category") or "")`) to prevent serialization exceptions over the MCP connection.
 
 ---
 

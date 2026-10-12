@@ -73,9 +73,21 @@ def search_listings(
             if not _size_matches(size, item_size):
                 continue
 
-        # 3. Score keyword overlap across title, description, and style_tags
-        tags_str = " ".join(item.get("style_tags", []))
-        text_corpus = f"{item.get('title', '')} {item.get('description', '')} {tags_str}".lower()
+        # # 3. Score keyword overlap across title, description, and style_tags
+        # tags_str = " ".join(item.get("style_tags", []))
+        # text_corpus = f"{item.get('title', '')} {item.get('description', '')} {tags_str}".lower()
+
+        # score = sum(1 for kw in keywords if kw in text_corpus)
+
+        # 3. Score keyword overlap across title, description, category, and style_tags (updated Milestone 3 Unit 4)
+        category_str = str(item.get("category") or "")
+        raw_tags = item.get("style_tags") or []
+        tags_str = " ".join(str(t) for t in raw_tags if t)
+        
+        title_str = str(item.get("title") or "")
+        desc_str = str(item.get("description") or "")
+
+        text_corpus = f"{title_str} {desc_str} {category_str} {tags_str}".lower()
 
         score = sum(1 for kw in keywords if kw in text_corpus)
 
