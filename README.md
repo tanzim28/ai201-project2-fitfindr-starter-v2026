@@ -301,6 +301,15 @@ that produced it:
      one should be visibly shorter, because it stops. If your two traces are
      the same length, your branch isn't working — and this is the fastest way
      anyone will ever find that out. -->
+[1] search_listings (MCP)
+      in:  dict with keys: description, size, max_price
+      out: 10 listings found
+[2] suggest_outfit
+      in:  dict with keys: item
+      out: outfit suggestions generated
+[3] create_fit_card
+      in:  dict with keys: item
+      out: Look at this absolute Depop steal I scored for just $18.0! I...
 
 **Happy path**
 

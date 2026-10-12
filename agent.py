@@ -16,7 +16,8 @@ Build and test your three tools in `tools.py` first. Then come here.
 import re
 import config
 import trace
-from tools import search_listings, suggest_outfit, create_fit_card
+import mcp_client
+from tools import suggest_outfit, create_fit_card
 from generate import ModelUnavailable
 
 
@@ -122,12 +123,20 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     # 3. Parse query into structured fields and save in session["parsed"]
     session["parsed"] = parse_query(session["query"])
 
-    # 4. Call search_listings and store in session["search_results"]
+    # 4. Call search_listings via MCP and record trace step
     parsed = session["parsed"]
-    session["search_results"] = search_listings(
-        description=parsed["description"],
-        size=parsed["size"],
-        max_price=parsed["max_price"],
+    session["search_results"] = mcp_client.call_tool(
+        "search_listings",
+        {
+            "description": parsed["description"],
+            "size": parsed["size"],
+            "max_price": parsed["max_price"],
+        },
+    )
+    trace.step(
+        "search_listings (MCP)",
+        inputs=session["parsed"],
+        returned=f"{len(session['search_results'])} listings found",
     )
 
     # ⚠️ THIS IS THE BRANCH: If nothing came back, halt cleanly and explain what to adjust
@@ -138,17 +147,41 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     # 5. Choose top result and store in session["selected_item"]
     session["selected_item"] = session["search_results"][0]
 
-    # 6. Call suggest_outfit using session state values
-    session["outfit_suggestion"] = suggest_outfit(
-        new_item=session["selected_item"],
-        wardrobe=session["wardrobe"],
-    )
+    # 6. Call suggest_outfit using session state values with ModelUnavailable guard
+    try:
+        session["outfit_suggestion"] = suggest_outfit(
+            new_item=session["selected_item"],
+            wardrobe=session["wardrobe"],
+        )
+        trace.step(
+            "suggest_outfit",
+            inputs={"item": session["selected_item"].get("title")},
+            returned="outfit suggestions generated",
+        )
+    except ModelUnavailable as e:
+        session["error"] = (
+            f"Styling service unavailable: {e}. Check your GEMINI_API_KEY in .env, "
+            "verify your quota at aistudio.google.com, or try again later."
+        )
+        return session
 
-    # 7. Call create_fit_card using session state values
-    session["fit_card"] = create_fit_card(
-        outfit=session["outfit_suggestion"],
-        new_item=session["selected_item"],
-    )
+    # 7. Call create_fit_card using session state values with ModelUnavailable guard
+    try:
+        session["fit_card"] = create_fit_card(
+            outfit=session["outfit_suggestion"],
+            new_item=session["selected_item"],
+        )
+        trace.step(
+            "create_fit_card",
+            inputs={"item": session["selected_item"].get("title")},
+            returned=session["fit_card"][:60] + "..." if session["fit_card"] else "None",
+        )
+    except ModelUnavailable as e:
+        session["error"] = (
+            f"Fit card generation unavailable: {e}. Check your network connection "
+            "and GEMINI_API_KEY, then re-run."
+        )
+        return session
 
     # 8. Return finished session
     return session
